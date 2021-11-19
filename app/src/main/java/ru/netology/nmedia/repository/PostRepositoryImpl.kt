@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import ru.netology.nmedia.dto.Post
 import java.io.IOException
 import java.lang.Exception
@@ -13,6 +14,11 @@ import java.util.concurrent.TimeUnit
 
 class PostRepositoryImpl : PostRepository {
     private val client = OkHttpClient.Builder()
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        )
         .connectTimeout(30, TimeUnit.SECONDS)
         .build()
     private val gson = Gson()
@@ -136,7 +142,7 @@ class PostRepositoryImpl : PostRepository {
         client.newCall(request)
             .enqueue(object : Callback {
                 override fun onResponse(call: Call, response: Response) {
-                    val body = response.body?.toString() ?: throw RuntimeException("body is null")
+                    val body = response.body?.string() ?: throw RuntimeException("body is null")
                     try {
                         callback.onSuccess(gson.fromJson(body, typeToken.type))
                     } catch (e: Exception) {
