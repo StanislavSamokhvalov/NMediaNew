@@ -6,13 +6,12 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
-import java.io.IOException
-import kotlin.concurrent.thread
 
 private val empty = Post(
     id = 0,
     content = "",
     author = "",
+    authorAvatar = "",
     likedByMe = false,
     likes = 0,
     published = ""
@@ -36,7 +35,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun loadPosts() {
         // Начинаем загрузку
         _data.postValue(FeedModel(loading = true))
-        repository.getAllAsync(object : PostRepository.GetAllCallback {
+        repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
             override fun onSuccess(posts: List<Post>) {
                 _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
             }
@@ -48,28 +47,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun share(id: Long) {
-        val old = _data.value?.posts.orEmpty()
-        repository.shareByIdAsync(id, object : PostRepository.GetPostCallback {
-            override fun onSuccess(post: Post) {
-                _data.postValue(
-                    _data.value?.copy(
-                        posts = _data.value?.posts.orEmpty()
-                            .map { if (it.id == id) post else it })
-                )
-            }
-
-            override fun onError(e: Exception) {
-                _data.postValue(_data.value?.copy(posts = old))
-            }
-        })
-    }
 
     fun save() {
         val old = _data.value?.posts.orEmpty()
         edited.value?.let {
-            repository.saveAsync(it, object : PostRepository.GetPostCallback {
-                override fun onSuccess(post: Post) {
+            repository.saveAsync(it, object : PostRepository.Callback<Post> {
+                override fun onSuccess(posts: Post) {
                     _postCreated.postValue(Unit)
                 }
 
@@ -95,12 +78,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun likeById(id: Long) {
         val old = _data.value?.posts.orEmpty()
-        repository.likeByIdAsync(id, object : PostRepository.GetPostCallback {
-            override fun onSuccess(post: Post) {
+        repository.likeByIdAsync(id, object : PostRepository.Callback<Post> {
+            override fun onSuccess(posts: Post) {
                 _data.postValue(
                     _data.value?.copy(
                         posts = _data.value?.posts.orEmpty()
-                            .map { if (it.id == id) post else it })
+                            .map { if (it.id == id) posts else it })
                 )
             }
 
@@ -113,12 +96,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun unlikeById(id: Long) {
         val old = _data.value?.posts.orEmpty()
-        repository.unlikeByIdAsync(id, object : PostRepository.GetPostCallback {
-            override fun onSuccess(post: Post) {
+        repository.unlikeByIdAsync(id, object : PostRepository.Callback<Post> {
+            override fun onSuccess(posts: Post) {
                 _data.postValue(
                     _data.value?.copy(
                         posts = _data.value?.posts.orEmpty()
-                            .map { if (it.id == id) post else it })
+                            .map { if (it.id == id) posts else it })
                 )
             }
 
@@ -132,8 +115,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) {
         // Оптимистичная модель
         val old = _data.value?.posts.orEmpty()
-        repository.removeByIdAsync(id, object : PostRepository.RemoveByIdCallback {
-            override fun onSuccess(id: Long) {
+        repository.removeByIdAsync(id, object : PostRepository.Callback<Unit> {
+            override fun onSuccess(posts: Unit) {
                 val posts = _data.value?.posts.orEmpty()
                     .filter { it.id != id }
                 _data.postValue(
