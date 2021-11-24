@@ -19,7 +19,7 @@ class PostRepositoryImpl : PostRepository {
                 response: Response<Post>
             ) {
                 if (!response.isSuccessful) {
-                    if (counter < 0) {
+                    if (counter > 0) {
                         PostApi.retrofitService.likeById(id).enqueue(this)
                         counter--
                     } else {
@@ -44,7 +44,7 @@ class PostRepositoryImpl : PostRepository {
                 response: Response<Post>
             ) {
                 if (!response.isSuccessful) {
-                    if (counter < 0) {
+                    if (counter > 0) {
                         PostApi.retrofitService.unlikeById(id).enqueue(this)
                         counter--
                     } else {
@@ -69,7 +69,7 @@ class PostRepositoryImpl : PostRepository {
                 response: Response<Post>
             ) {
                 if (!response.isSuccessful) {
-                    if (counter < 0) {
+                    if (counter > 0) {
                         PostApi.retrofitService.save(post).enqueue(this)
                         counter--
                     } else {
@@ -95,7 +95,7 @@ class PostRepositoryImpl : PostRepository {
                 response: Response<Unit>
             ) {
                 if (!response.isSuccessful) {
-                    if (counter < 0) {
+                    if (counter > 0) {
                         PostApi.retrofitService.removeById(id).enqueue(this)
                         counter--
                     } else {
@@ -120,7 +120,7 @@ class PostRepositoryImpl : PostRepository {
                 response: Response<List<Post>>
             ) {
                 if (!response.isSuccessful) {
-                    if (counter < 0) {
+                    if (counter > 0) {
                         PostApi.retrofitService.getAll().enqueue(this)
                         counter--
                     } else {
