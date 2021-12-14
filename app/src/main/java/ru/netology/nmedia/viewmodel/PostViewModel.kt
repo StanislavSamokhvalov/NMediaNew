@@ -2,6 +2,9 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
@@ -17,22 +20,35 @@ private val empty = Post(
     authorAvatar = "",
     likedByMe = false,
     likes = 0,
+    viewed = false,
     published = ""
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(application).postDao())
-    private val _data = repository.data.map { FeedModel(posts = it, empty = it.isEmpty()) }
-    val data: LiveData<FeedModel>
-        get() = _data
+
+    val data: LiveData<FeedModel> = repository.data
+        .map(::FeedModel)
+        .catch { e -> e.printStackTrace() }
+        .asLiveData(Dispatchers.Default)
+
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0)
+            .catch { e -> e.printStackTrace() }
+            .asLiveData(Dispatchers.Default)
+    }
+    var viewedCountSum: Int = 0
+
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState
+
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+
 
     init {
         loadPosts()
@@ -42,6 +58,16 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         try {
             _dataState.postValue(FeedModelState(loading = true))
             repository.getAll()
+            _dataState.postValue(FeedModelState())
+        } catch (e: Exception) {
+            _dataState.postValue(FeedModelState(error = true))
+        }
+    }
+
+    fun loadNewPosts() = viewModelScope.launch {
+        try {
+            _dataState.postValue(FeedModelState(loading = true))
+            repository.getNewerPosts()
             _dataState.postValue(FeedModelState())
         } catch (e: Exception) {
             _dataState.postValue(FeedModelState(error = true))

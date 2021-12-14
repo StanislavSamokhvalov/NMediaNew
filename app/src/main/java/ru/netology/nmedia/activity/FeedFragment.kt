@@ -62,13 +62,29 @@ class FeedFragment : Fragment() {
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
-            if (state.error){
+            if (state.error) {
                 Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG).show()
             }
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+            if (state > 0) {
+                viewModel.viewedCountSum += state
+                binding.viewedButton.setText(getString(R.string.new_post, viewModel.viewedCountSum))
+                binding.viewedButton.visibility = View.VISIBLE
+            }
+        }
+
+        binding.viewedButton.setOnClickListener {
+            viewModel.loadNewPosts()
+            viewModel.viewedCountSum = 0
+            binding.list.smoothScrollToPosition(0)
+            binding.viewedButton.visibility = View.GONE
+        }
+
         binding.swiperefresh.setOnRefreshListener {
             viewModel.refreshPosts()
+            binding.viewedButton.visibility = View.GONE
         }
 
         binding.fab.setOnClickListener {
