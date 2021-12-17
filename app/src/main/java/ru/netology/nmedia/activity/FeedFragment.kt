@@ -60,6 +60,7 @@ class FeedFragment : Fragment() {
         })
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
+            binding.errorGroup.isVisible = state.error
             binding.progress.isVisible = state.loading
             binding.swiperefresh.isRefreshing = state.refreshing
             if (state.error) {
