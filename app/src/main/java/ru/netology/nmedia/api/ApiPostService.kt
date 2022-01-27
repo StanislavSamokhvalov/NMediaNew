@@ -1,5 +1,7 @@
 package ru.netology.nmedia.api
 
+import android.provider.MediaStore
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -8,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -47,6 +50,13 @@ interface ApiPostService {
 
     @POST("posts/{id}/likes")
     suspend fun likeById(@Path("id") id: Long): Response<Post>
+
+    @Multipart
+    @POST("media")
+    suspend fun uploadWithContent(
+        @Part media: MultipartBody.Part,
+        @Part content: MultipartBody.Part
+    ): Response<Media>
 }
 
 object PostApi {

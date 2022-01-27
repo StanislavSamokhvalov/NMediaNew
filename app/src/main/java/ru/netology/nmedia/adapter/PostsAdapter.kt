@@ -1,12 +1,16 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.BuildConfig.BASE_URL
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
@@ -17,6 +21,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post) {}
     fun onRemove(post: Post) {}
     fun onShare(post: Post) {}
+    fun onPicture(pic: String) {}
 }
 
 class PostsAdapter(
@@ -47,13 +52,26 @@ class PostViewHolder(
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
 
+            val url = "${BASE_URL}/avatars/${post.authorAvatar}"
+
             Glide.with(avatar)
-                .load("${BASE_URL}/avatars/${post.authorAvatar}")
+                .load(url)
                 .circleCrop()
                 .placeholder(R.drawable.ic_baseline_hourglass_empty_24)
                 .timeout(10000)
                 .error(R.drawable.ic_baseline_error_24)
                 .into(avatar)
+
+            photo.visibility = View.GONE
+
+            post.attachment?.let {
+                val urlPhoto = "${BASE_URL}/media/${it.url}"
+                Glide.with(photo)
+                    .load(urlPhoto)
+                    .into(photo)
+
+                photo.visibility = View.VISIBLE
+            }
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
@@ -82,6 +100,11 @@ class PostViewHolder(
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
+
+            photo.setOnClickListener {
+                post.attachment?.let { att -> onInteractionListener.onPicture(att.url) }
+            }
+
         }
     }
 }

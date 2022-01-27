@@ -22,4 +22,9 @@
     <string name="channel_remote_name">Уведомления с сервера</string>
     <string name="channel_remote_description">Уведомления с удалённого сервера</string>
     <string name="new_post">Новые посты: %1$d</string>
+    <string name="description_select_photo">Выбрать фотографию</string>
+    <string name="description_take_photo">Сделать фотографию</string>
+    <string name="remove">Удалить</string>
+    <string name="description_photo">Фотография</string>
+    <string name="menu_save">Сохранить</string>
 </resources>

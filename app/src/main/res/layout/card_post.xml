@@ -81,7 +81,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/header"
+            app:layout_constraintBottom_toTopOf="@id/photo"
             tools:text="@sample/posts.json/data/content" />
+
+        <ImageView
+            android:id="@+id/photo"
+            android:layout_width="@dimen/photo_width"
+            android:layout_height="@dimen/photo_height"
+            android:layout_marginBottom="@dimen/common_spacing"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content"
+            app:layout_constraintBottom_toTopOf="@id/footer"
+            android:src="@drawable/ic_photo_24dp"
+            android:contentDescription="@string/description_photo" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/footer"

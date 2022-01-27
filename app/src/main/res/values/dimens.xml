@@ -8,5 +8,7 @@
     <dimen name="icon_button_min_size">48dp</dimen>
     <dimen name="viewedButton_spaceTop">32dp</dimen>
     <dimen name="corner_radius_viewedButton">50dp</dimen>
+    <dimen name="photo_width">372dp</dimen>
+    <dimen name="photo_height">270dp</dimen>
 </resources>
 
