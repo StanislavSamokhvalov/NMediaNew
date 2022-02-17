@@ -10,6 +10,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import ru.netology.nmedia.BuildConfig
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 
@@ -25,7 +26,20 @@ private val client = OkHttpClient.Builder()
 
 private const val BASE_URL = "${BuildConfig.BASE_URL}/api/slow/"
 
-private val retrofit = Retrofit.Builder()
+private val okhttp = OkHttpClient.Builder()
+    .addInterceptor(logging)
+    .addInterceptor { chain ->
+        AppAuth.getInstance().authStateFlow.value.token?.let { token ->
+            val newRequest = chain.request().newBuilder()
+                .addHeader("Authorization", token)
+                .build()
+            return@addInterceptor chain.proceed(newRequest)
+        }
+        chain.proceed(chain.request())
+    }
+    .build()
+
+val retrofit = Retrofit.Builder()
     .addConverterFactory(GsonConverterFactory.create())
     .baseUrl(BASE_URL)
     .client(client)
@@ -57,6 +71,7 @@ interface ApiPostService {
         @Part media: MultipartBody.Part,
         @Part content: MultipartBody.Part
     ): Response<Media>
+
 }
 
 object PostApi {

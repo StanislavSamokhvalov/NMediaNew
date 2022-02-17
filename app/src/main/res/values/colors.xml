@@ -4,5 +4,6 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorDarkBackground">#000000</color>
-    <color name="divider_color">#ccc</color>
+    <color name="colorDivider">#ccc</color>
+    <color name="colorButton">#3A9BCD</color>
 </resources>

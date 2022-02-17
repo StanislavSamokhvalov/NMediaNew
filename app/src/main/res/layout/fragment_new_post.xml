@@ -57,7 +57,7 @@
         app:layout_constraintBottom_toTopOf="@+id/buttonPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/divider_color" />
+        android:background="@color/colorDivider" />
 
     <LinearLayout
         android:id="@+id/buttonPanel"

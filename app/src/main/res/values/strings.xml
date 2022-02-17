@@ -26,4 +26,14 @@
     <string name="remove">Remove</string>
     <string name="description_photo">Photo</string>
     <string name="menu_save">Save</string>
+    <string name="signin">Sign In</string>
+    <string name="signup">Sign Up</string>
+    <string name="signout">Sign Out</string>
+    <string name="login_sign_in">Login</string>
+    <string name="password_sign_in">Password</string>
+    <string name="button_sign_in">Log In</string>
+    <string name="registration">Registration</string>
+    <string name="repeat_password">Repeat Password</string>
+    <string name="name">Name</string>
+    <string name="error_password">Password mismatch</string>
 </resources>

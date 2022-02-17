@@ -15,11 +15,13 @@ import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class FeedFragment : Fragment() {
 
     private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModelAuth: AuthViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +36,9 @@ class FeedFragment : Fragment() {
             }
 
             override fun onLike(post: Post) {
-                if (!post.likedByMe) viewModel.likeById(post.id) else viewModel.unlikeById(post.id)
+                if (viewModelAuth.authenticated) {
+                    if (!post.likedByMe) viewModel.likeById(post.id) else viewModel.unlikeById(post.id)
+                } else findNavController().navigate(R.id.action_feedFragment_to_signUpFragment)
             }
 
             override fun onRemove(post: Post) {
@@ -99,9 +103,10 @@ class FeedFragment : Fragment() {
         }
 
         binding.fab.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            if (viewModelAuth.authenticated) {
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            } else findNavController().navigate(R.id.action_feedFragment_to_signUpFragment)
         }
-
         return binding.root
     }
 }
