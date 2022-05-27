@@ -85,6 +85,7 @@
             android:contentDescription="@string/description_take_photo"
             android:padding="@dimen/common_spacing"
             app:icon="@drawable/ic_camera_24dp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

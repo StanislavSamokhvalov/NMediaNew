@@ -38,7 +38,7 @@ class FeedFragment : Fragment() {
             override fun onLike(post: Post) {
                 if (viewModelAuth.authenticated) {
                     if (!post.likedByMe) viewModel.likeById(post.id) else viewModel.unlikeById(post.id)
-                } else findNavController().navigate(R.id.action_feedFragment_to_signUpFragment)
+                } else findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
             }
 
             override fun onRemove(post: Post) {
@@ -62,7 +62,7 @@ class FeedFragment : Fragment() {
                     putString("pic", pic)
                 }
                 findNavController().navigate(
-                    R.id.action_feedFragment_to_singlePostFragment,
+                    R.id.action_feedFragment_to_singleImageFragment,
                     bundle
                 )
             }

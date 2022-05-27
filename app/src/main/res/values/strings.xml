@@ -36,4 +36,6 @@
     <string name="repeat_password">Repeat Password</string>
     <string name="name">Name</string>
     <string name="error_password">Password mismatch</string>
+    <string name="error_auth">Invalid username or password</string>
+    <string name="notification_user_login">A user came in with an id %1$s</string>
 </resources>

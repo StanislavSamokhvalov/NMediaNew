@@ -37,4 +37,6 @@
     <string name="repeat_password">Повторите пароль</string>
     <string name="name">Имя</string>
     <string name="error_password">Пароли не совпадают</string>
+    <string name="error_auth">Неверный логин или пароль</string>
+    <string name="notification_user_login">Зашел пользователь с id %1$s</string>
 </resources>

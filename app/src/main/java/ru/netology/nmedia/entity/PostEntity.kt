@@ -46,7 +46,7 @@ data class AttachmentEmbeddable(
     var url: String,
     var type: AttachmentType
 ) {
-    fun toDto() = Attachment(url, type)
+    fun toDto() = Attachment(url = url, type = type)
 
     companion object {
         fun fromDto(dto: Attachment?) = dto?.let {

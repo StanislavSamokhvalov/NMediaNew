@@ -10,11 +10,10 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.auth.AppAuth
 import kotlin.random.Random
 
-
 class FCMService : FirebaseMessagingService() {
-    private val action = "action"
     private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
@@ -34,44 +33,48 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        val push = gson.fromJson(message.data[content], Push::class.java)
+        val myId = AppAuth.getInstance().authStateFlow.value.id
 
-        message.data[action]?.let {
-           when (Action.valueOf(it)) {
-              Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-           }
+        when (push.recipientId) {
+            myId, null -> {
+                sendNotification(push)
+            }
+            else -> AppAuth.getInstance().sendPushToken()
         }
     }
 
     override fun onNewToken(token: String) {
-        println(token)
+        AppAuth.getInstance().sendPushToken(token)
     }
 
-    private fun handleLike(content: Like) {
+    private fun sendNotification(push: Push) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(
                 getString(
-                    R.string.notification_user_liked,
-                    content.userName,
-                    content.postAuthor,
+                    R.string.notification_user_login,
+                    push.content
                 )
             )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(push.recipientId.toString()))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
-        NotificationManagerCompat.from(this)
-            .notify(Random.nextInt(100_000), notification)
+        NotificationManagerCompat.from(this).notify(Random.nextInt(100_000), notification)
     }
 }
 
-enum class Action {
-    LIKE,
-}
-
-data class Like(
-    val userId: Long,
-    val userName: String,
-    val postId: Long,
-    val postAuthor: String,
+data class Push(
+    val content: String,
+    val recipientId: Long?
 )
 
+//Реализуйте на клиентской стороне при получении push-сообщения проверку recipientId (сервер будет присылать вам его в Push'е).
+//
+//Для этого сравнивайте полученный recipientId с тем, что хранится у вас в AppAuth, и выполняйте одно из следующих действий:
+//
+//если recipientId = тому, что в AppAuth, то всё ok, показываете Notification;
+//если recipientId = 0 (и не равен вашему), значит сервер считает, что у вас анонимная аутентификация и вам нужно переотправить свой push token;
+//если recipientId != 0 (и не равен вашему), значит сервер считает, что на вашем устройстве другая аутентификация и вам нужно переотправить свой push token;
+//если recipientId = null, то это массовая рассылка, показываете Notification.

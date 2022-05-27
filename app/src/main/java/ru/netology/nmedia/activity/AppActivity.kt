@@ -16,7 +16,6 @@ import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
-
 class AppActivity : AppCompatActivity(R.layout.activity_app) {
     private val viewModel: AuthViewModel by viewModels()
 
@@ -50,10 +49,10 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
         checkGoogleApiAvailability()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        menu?.let {
+        menu.let {
             it.setGroupVisible(R.id.unauthenticated, !viewModel.authenticated)
             it.setGroupVisible(R.id.authenticated, viewModel.authenticated)
         }
