@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     compileSdkVersion 31
@@ -23,6 +24,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
     }
 
     buildFeatures {
@@ -55,8 +57,8 @@ dependencies {
     def espresso_core_version = "3.4.0"
     def activity_version = "1.4.0"
     def lifecycle_version = "2.4.1"
-    def mdc_version = "1.5.0"
-    def nav_version = "2.4.1"
+    def mdc_version = "1.6.0"
+    def nav_version = "2.4.2"
     def room_version = "2.4.2"
     def firebase_version = "29.3.0"
     def glide_version = "4.13.1"
@@ -66,6 +68,7 @@ dependencies {
     def coroutines_version = "1.6.0"
     def imagepicker_version = "2.1"
     def play_services_base_version = "18.0.1"
+    def hilt_version = "2.38.1"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -96,6 +99,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
     implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$ext_junit_version"

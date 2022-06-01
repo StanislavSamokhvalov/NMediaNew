@@ -10,10 +10,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentSingleImageBinding
 
+@AndroidEntryPoint
 class SingleImageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,

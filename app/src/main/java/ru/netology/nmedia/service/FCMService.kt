@@ -9,14 +9,20 @@ import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
+import javax.inject.Inject
 import kotlin.random.Random
 
+@AndroidEntryPoint
 class FCMService : FirebaseMessagingService() {
     private val content = "content"
     private val channelId = "remote"
     private val gson = Gson()
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     override fun onCreate() {
         super.onCreate()
@@ -34,18 +40,18 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         val push = gson.fromJson(message.data[content], Push::class.java)
-        val myId = AppAuth.getInstance().authStateFlow.value.id
+        val myId = appAuth.authStateFlow.value.id
 
         when (push.recipientId) {
             myId, null -> {
                 sendNotification(push)
             }
-            else -> AppAuth.getInstance().sendPushToken()
+            else -> appAuth.sendPushToken()
         }
     }
 
     override fun onNewToken(token: String) {
-        AppAuth.getInstance().sendPushToken(token)
+        appAuth.sendPushToken(token)
     }
 
     private fun sendNotification(push: Push) {
@@ -70,11 +76,3 @@ data class Push(
     val recipientId: Long?
 )
 
-//Реализуйте на клиентской стороне при получении push-сообщения проверку recipientId (сервер будет присылать вам его в Push'е).
-//
-//Для этого сравнивайте полученный recipientId с тем, что хранится у вас в AppAuth, и выполняйте одно из следующих действий:
-//
-//если recipientId = тому, что в AppAuth, то всё ok, показываете Notification;
-//если recipientId = 0 (и не равен вашему), значит сервер считает, что у вас анонимная аутентификация и вам нужно переотправить свой push token;
-//если recipientId != 0 (и не равен вашему), значит сервер считает, что на вашем устройстве другая аутентификация и вам нужно переотправить свой push token;
-//если recipientId = null, то это массовая рассылка, показываете Notification.

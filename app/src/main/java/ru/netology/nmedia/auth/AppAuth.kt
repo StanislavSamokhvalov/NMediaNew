@@ -1,8 +1,13 @@
 package ru.netology.nmedia.auth
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,31 +15,36 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.dto.PushToken
-import java.lang.IllegalStateException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppAuth private constructor(context: Context) {
-    private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-    private val idKey = "id"
-    private val tokenKey = "token"
+@Singleton
+class AppAuth @Inject constructor(
+    private val api: ApiService,
+    private val authPrefs: SharedPreferences
+) {
+    companion object {
+        const val idKey = "id"
+        const val tokenKey = "token"
+    }
 
     private val _authStateFlow: MutableStateFlow<AuthState>
 
     init {
-        val id = prefs.getLong(idKey, 0)
-        val token = prefs.getString(tokenKey, null)
+        val id = authPrefs.getLong(idKey, 0)
+        val token = authPrefs.getString(tokenKey, null)
 
         if (id == 0L || token == null) {
             _authStateFlow = MutableStateFlow(AuthState())
-            with(prefs.edit()) {
+            with(authPrefs.edit()) {
                 clear()
                 apply()
             }
         } else {
             _authStateFlow = MutableStateFlow(AuthState(id, token))
         }
-
         sendPushToken()
     }
 
@@ -43,7 +53,7 @@ class AppAuth private constructor(context: Context) {
     @Synchronized
     fun setAuth(id: Long, token: String) {
         _authStateFlow.value = AuthState(id, token)
-        with(prefs.edit()) {
+        with(authPrefs.edit()) {
             putLong(idKey, id)
             putString(tokenKey, token)
             apply()
@@ -54,35 +64,18 @@ class AppAuth private constructor(context: Context) {
     @Synchronized
     fun removeAuth() {
         _authStateFlow.value = AuthState()
-        with(prefs.edit()) {
+        with(authPrefs.edit()) {
             clear()
             commit()
         }
         sendPushToken()
     }
 
-    companion object {
-        @Volatile
-        private var instance: AppAuth? = null
-
-        fun getInstance(): AppAuth = synchronized(this) {
-            instance ?: throw IllegalStateException(
-                "AppAuth is not initialized, u must call AppAuth.initializeApp(Context context) first",
-            )
-        }
-
-        fun initApp(context: Context): AppAuth = instance ?: synchronized(this) {
-            instance ?: buildApp(context).also { instance = it }
-        }
-
-        private fun buildApp(context: Context): AppAuth = AppAuth(context)
-    }
-
     fun sendPushToken(token: String? = null) {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val pushToken = PushToken(token ?: Firebase.messaging.token.await())
-                Api.retrofitService.savePushToken(pushToken)
+                api.savePushToken(pushToken)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

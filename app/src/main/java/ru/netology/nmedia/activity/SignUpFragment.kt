@@ -9,16 +9,20 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.databinding.FragmentSignUpBinding
 import ru.netology.nmedia.viewmodel.SignUpViewModel
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
+    @Inject
+    lateinit var appAuth: AppAuth
 
-    private val viewModel: SignUpViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    val viewModel: SignUpViewModel by viewModels(ownerProducer = ::requireParentFragment)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,10 +35,11 @@ class SignUpFragment : Fragment() {
             false
         )
 
-        viewModel.data.observe(viewLifecycleOwner, {
-            AppAuth.getInstance().setAuth(it.id, it.token)
+
+        viewModel.data.observe(viewLifecycleOwner) {
+            appAuth.setAuth(it.id, it.token)
             findNavController().navigateUp()
-        })
+        }
 
         viewModel.dataState.observe(viewLifecycleOwner) { state ->
             if (state.errorRegistration)
